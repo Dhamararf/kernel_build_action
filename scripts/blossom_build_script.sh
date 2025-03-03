@@ -2,7 +2,7 @@
 
 # Dependencies
 rm -rf kernel
-git clone $REPO -b $BRANCH kernel
+git clone https://github.com/Dhamararf/android_kernel_mediatek_mt6765g.git -b upstream kernel
 cd kernel
 
 clang() {
@@ -35,9 +35,9 @@ export CACHE
 export KBUILD_COMPILER_STRING
 ARCH=arm64
 export ARCH
-KBUILD_BUILD_HOST="DhamarAr"
+KBUILD_BUILD_HOST="Ordinary-Being"
 export KBUILD_BUILD_HOST
-KBUILD_BUILD_USER="Ordinary-Being"
+KBUILD_BUILD_USER="DhamarAr"
 export KBUILD_BUILD_USER
 DEVICE="Xiaomi Redmi 9C"
 export DEVICE
