@@ -20,8 +20,8 @@ clang() {
     echo "Done"
 }
 
-AnyKernel="https://github.com/romiyusnandar/Anykernel3.git"
-AnyKernelbranch="sweet"
+AnyKernel="https://github.com/Dhamararf/AnyKernel3.git"
+AnyKernelbranch="master"
 
 export IMG="$PWD"/out/arch/arm64/boot/Image.gz
 export dtbo="$PWD"/out/arch/arm64/boot/dtbo.img
@@ -41,7 +41,7 @@ KBUILD_BUILD_USER="Ordinary-Being"
 export KBUILD_BUILD_USER
 DEVICE="Xiaomi Redmi 9C"
 export DEVICE
-CODENAME="Blossom"
+CODENAME="blossom"
 export CODENAME
 # DEFCONFIG=""
 # DEFCONFIG_COMMON="vendor/sdmsteppe-perf_defconfig"
@@ -176,7 +176,7 @@ compile() {
 # Zipping
 zipping() {
     cd AnyKernel || exit 1
-    zip -r9 Evergreen-1.0-"${BRANCH}"-"${CODENAME}"-"${DATE}".zip ./*
+    zip -r9 FulmenKernel-"${BRANCH}"-"${CODENAME}"-"${DATE}".zip ./*
     cd ..
 }
 
