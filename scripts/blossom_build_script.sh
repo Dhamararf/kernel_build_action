@@ -2,17 +2,17 @@
 
 # Dependencies
 rm -rf kernel
-git clone https://github.com/Dhamararf/android_kernel_mediatek_mt6765g.git -b upstream kernel
+git clone $REPO -b $BRANCH kernel
 cd kernel
 
 clang() {
     rm -rf clang
     echo "Cloning clang"
     if [ ! -d "clang" ]; then
-    	mkdir clang
-     	cd clang
+        mkdir clang
+        cd clang
         wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r383902.tar.gz
-	tar -xvf *
+        tar -xvf *
         KBUILD_COMPILER_STRING="Another Clang"
         PATH="${PWD}/clang/bin:${PATH}"
     fi
@@ -43,10 +43,7 @@ DEVICE="Xiaomi Redmi 9C"
 export DEVICE
 CODENAME="blossom"
 export CODENAME
-# DEFCONFIG=""
-# DEFCONFIG_COMMON="vendor/sdmsteppe-perf_defconfig"
 DEFCONFIG_DEVICE="blossom_defconfig"
-# export DEFCONFIG_COMMON
 export DEFCONFIG_DEVICE
 COMMIT_HASH=$(git rev-parse --short HEAD)
 export COMMIT_HASH
@@ -74,7 +71,6 @@ tgs() {
         -F "caption=$2 | *MD5*: \`$MD5\`"
 }
 
-# Send Build Info
 sendinfo() {
     tg "
 • Dham Action •
@@ -87,93 +83,84 @@ sendinfo() {
 *Build Status*: \`${STATUS}\`"
 }
 
-# Push kernel to channel
 push() {
     cd AnyKernel || exit 1
     ZIP=$(echo *.zip)
     tgs "${ZIP}" "Build took $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s). | For *${DEVICE} (${CODENAME})* | ${KBUILD_COMPILER_STRING}"
 }
 
-# Catch Error
 tg_error() {
-        curl --progress-bar -F document=@"$1" "$BOT_BUILD_URL" \
-        -F chat_id="$2" \
-        -F "disable_web_page_preview=true" \
-        -F "parse_mode=html" \
-        -F caption="$3Failed to build , check <code>error.log</code>"
+    curl --progress-bar -F document=@"$1" "$BOT_BUILD_URL" \
+    -F chat_id="$2" \
+    -F "disable_web_page_preview=true" \
+    -F "parse_mode=html" \
+    -F caption="$3Failed to build , check <code>error.log</code>"
 }
 
 tg_post_msg() {
-        curl -s -X POST "$BOT_MSG_URL" -d chat_id="$2" \
-        -d "parse_mode=html" \
-        -d text="$1"
+    curl -s -X POST "$BOT_MSG_URL" -d chat_id="$2" \
+    -d "parse_mode=html" \
+    -d text="$1"
 }
 
 tg_post_build() {
-        #Post MD5Checksum alongwith for easeness
-        MD5CHECK=$(md5sum "$1" | cut -d' ' -f1)
-
-        #Show the Checksum alongwith caption
-        curl --progress-bar -F document=@"$1" "$BOT_BUILD_URL" \
-        -F chat_id="$2" \
-        -F "disable_web_page_preview=true" \
-        -F "parse_mode=html" \
-        -F caption="$3 build finished in $(($Diff / 60)) minutes and $(($Diff % 60)) seconds | <b>MD5 Checksum : </b><code>$MD5CHECK</code>"
+    MD5CHECK=$(md5sum "$1" | cut -d' ' -f1)
+    curl --progress-bar -F document=@"$1" "$BOT_BUILD_URL" \
+    -F chat_id="$2" \
+    -F "disable_web_page_preview=true" \
+    -F "parse_mode=html" \
+    -F caption="$3 build finished in $(($Diff / 60)) minutes and $(($Diff % 60)) seconds | <b>MD5 Checksum : </b><code>$MD5CHECK</code>"
 }
 
-# Compile
 compile() {
-
     if [ -d "out" ]; then
         rm -rf out && mkdir -p out
     fi
 
-    make O=out ARCH="${ARCH}"
-    make "$DEFCONFIG_DEVICE" O=out
+    make O=out ARCH="${ARCH}" "$DEFCONFIG_DEVICE"
     make -j$(nproc) \
-    		O=out \
-    		ARCH=arm64 \
-    		LLVM=1 \
-    		LLVM_IAS=1 \
-    		CROSS_COMPILE=aarch64-linux-gnu- \
-    		CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee error.log
+        O=out \
+        ARCH=arm64 \
+        LLVM=1 \
+        LLVM_IAS=1 \
+        CROSS_COMPILE=aarch64-linux-gnu- \
+        CROSS_COMPILE_ARM32=arm-linux-gnueabi- 2>&1 | tee error.log
 
     if [ -f "$IMG" ]; then
-                echo -e "$green << Build completed in $(($Diff / 60)) minutes and $(($Diff % 60)) seconds >> \n $white"
-		echo -e "$green << cloning AnyKernel from your repo >> \n $white"
-                git clone --depth=1 "$AnyKernel" --single-branch -b "$AnyKernelbranch" zip
-                echo -e "$yellow << making kernel zip >> \n $white"
-                cp -r "$IMG" zip/
-                cp -r "$dtbo" zip/
-                cp -r "$dtb" zip/
-                cd zip
-                export ZIP="test"-"kernel"-"$CODENAME"
-                zip -r9 "$ZIP" * -x .git README.md LICENSE *placeholder
-                curl -sLo zipsigner-3.0.jar https://gitlab.com/itsshashanksp/zipsigner/-/raw/master/bin/zipsigner-3.0-dexed.jar
-                java -jar zipsigner-3.0.jar "$ZIP".zip "$ZIP"-signed.zip
-                tg_post_msg "Kernel successfully compiled uploading ZIP" "$CHATID"
-                tg_post_build "$ZIP"-signed.zip "$CHATID"
-                tg_post_msg "done" "$CHATID"
-                cd ..
-                rm -rf error.log
-                rm -rf out
-                rm -rf zip
-                rm -rf testing.log
-                rm -rf zipsigner-3.0.jar
-                exit
-        else
-                echo -e "$red << Failed to compile the kernel , Check up to find the error >>$white"
-                tg_post_msg "Kernel failed to compile uploading error log"
-                tg_error "error.log" "$CHATID"
-                rm -rf out
-                rm -rf testing.log
-                rm -rf error.log
-                rm -rf zipsigner-3.0.jar
-                exit 1
-        fi
-
+        echo -e "Build completed in $(($DIFF / 60)) minutes and $(($DIFF % 60)) seconds"
+        echo -e "Cloning AnyKernel from your repo"
+        git clone --depth=1 "$AnyKernel" --single-branch -b "$AnyKernelbranch" zip
+        echo -e "Making kernel zip"
+        cp -r "$IMG" zip/
+        cp -r "$dtbo" zip/
+        cp -r "$dtb" zip/
+        cd zip
+        export ZIP="test"-"kernel"-"$CODENAME"
+        zip -r9 "$ZIP" * -x .git README.md LICENSE *placeholder
+        curl -sLo zipsigner-3.0.jar https://gitlab.com/itsshashanksp/zipsigner/-/raw/master/bin/zipsigner-3.0-dexed.jar
+        java -jar zipsigner-3.0.jar "$ZIP".zip "$ZIP"-signed.zip
+        tg_post_msg "Kernel successfully compiled uploading ZIP" "$CHATID"
+        tg_post_build "$ZIP"-signed.zip "$CHATID"
+        tg_post_msg "done" "$CHATID"
+        cd ..
+        rm -rf error.log
+        rm -rf out
+        rm -rf zip
+        rm -rf testing.log
+        rm -rf zipsigner-3.0.jar
+        exit
+    else
+        echo -e "Failed to compile the kernel, Check up to find the error"
+        tg_post_msg "Kernel failed to compile uploading error log"
+        tg_error "error.log" "$CHATID"
+        rm -rf out
+        rm -rf testing.log
+        rm -rf error.log
+        rm -rf zipsigner-3.0.jar
+        exit 1
+    fi
 }
-# Zipping
+
 zipping() {
     cd AnyKernel || exit 1
     zip -r9 FulmenKernel-"${BRANCH}"-"${CODENAME}"-"${DATE}".zip ./*
