@@ -4,19 +4,19 @@ on:
   workflow_dispatch:
     inputs:
       device: 
-          description: 'blossom'
+          description: 'device codename (e.g topaz/tissot)'
           required: true
       repo:
-          description: 'https://github.com/Dhamararf/android_kernel_mediatek_mt6765g'
+          description: 'Kernel source link (dont include . git at the end)'
           required: true
       branch:
-          description: 'upstream'
+          description: 'Kernel source branch'
           required: true
       token:
-          description: '7763344084:AAF4JXV2mHjk0MqY6dbllyJz1oIcnWOTzXs'
-          required: true 
+          description: 'Telegram bot token'
+          required: true
       chat_id:
-          description: '7378990955'
+          description: 'Telegram chat id'
           required: true
 
 
@@ -50,7 +50,7 @@ jobs:
         run: |
           if [ "${DEVICE}" = "blossom" ]; then
             wget https://github.com/Dhamararf/kernel_build_action/blob/main/blossom_build_script.sh
-            bash tissot_build_script.sh
+            bash blossom_build_script.sh
           else
             echo "Device not supported yet"
           fi
