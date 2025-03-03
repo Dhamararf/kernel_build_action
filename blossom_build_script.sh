@@ -11,7 +11,7 @@ clang() {
     if [ ! -d "clang" ]; then
     	mkdir clang
      	cd clang
-        wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r530567.tar.gz
+        wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r383902.tar.gz
 	tar -xvf *
         KBUILD_COMPILER_STRING="Another Clang"
         PATH="${PWD}/clang/bin:${PATH}"
@@ -35,24 +35,24 @@ export CACHE
 export KBUILD_COMPILER_STRING
 ARCH=arm64
 export ARCH
-KBUILD_BUILD_HOST="romi.yusna"
+KBUILD_BUILD_HOST="DhamarAr"
 export KBUILD_BUILD_HOST
-KBUILD_BUILD_USER="orion-server"
+KBUILD_BUILD_USER="Ordinary-Being"
 export KBUILD_BUILD_USER
-DEVICE="Xiaomi Redmi Note 10 Pro"
+DEVICE="Xiaomi Redmi 9C"
 export DEVICE
-CODENAME="sweet"
+CODENAME="Blossom"
 export CODENAME
 # DEFCONFIG=""
 # DEFCONFIG_COMMON="vendor/sdmsteppe-perf_defconfig"
-DEFCONFIG_DEVICE="sweet_defconfig"
+DEFCONFIG_DEVICE="blossom_defconfig"
 # export DEFCONFIG_COMMON
 export DEFCONFIG_DEVICE
 COMMIT_HASH=$(git rev-parse --short HEAD)
 export COMMIT_HASH
 PROCS=$(nproc --all)
 export PROCS
-STATUS=STABLE
+STATUS=BETA
 export STATUS
 source "${HOME}"/.bashrc && source "${HOME}"/.profile
 if [ $CACHE = 1 ]; then
@@ -77,7 +77,7 @@ tgs() {
 # Send Build Info
 sendinfo() {
     tg "
-• Romiz Action •
+• Dham Action •
 *Building on*: \`Github actions\`
 *Date*: \`${DATE}\`
 *Device*: \`${DEVICE} (${CODENAME})\`
