@@ -54,6 +54,7 @@ jobs:
         run: |
           if [ "${DEVICE}" = "blossom" ]; then
             wget https://github.com/Dhamararf/kernel_build_action/blob/main/scripts/blossom_build_script.sh
+            chmod +x blossom_build_script.sh
             ./blossom_build_script.sh
           else
             echo "Device not supported yet"
