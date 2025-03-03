@@ -3,21 +3,21 @@ name: Build Kernel
 on:
   workflow_dispatch:
     inputs:
-      device:
-          description: 'device codename (e.g topaz/tissot)'
+      device: 
+          description: 'blossom'
           required: true
       repo:
-          description: 'Kernel source link (dont include . git at the end)'
+          description: 'https://github.com/Dhamararf/android_kernel_mediatek_mt6765g'
           required: true
       branch:
-          description: 'Kernel source branch'
+          description: 'upstream'
           required: true
       token:
-          description: 'Telegram bot token'
-          required: false
+          description: '7763344084:AAF4JXV2mHjk0MqY6dbllyJz1oIcnWOTzXs'
+          required: true 
       chat_id:
-          description: 'Telegram chat id'
-          required: false
+          description: '7378990955'
+          required: true
 
 
 env:
@@ -36,8 +36,8 @@ jobs:
     steps:
       - name: Initializing environment
         run: |
-          git config --global user.name "sirnewbies"
-          git config --global user.email "yusromi04@gmail.com"
+          git config --global user.name "Dhamararf"
+          git config --global user.email "dhamararifkurniawan@gmail.com"
           df -h
           ld --version
           gcc -v
@@ -48,18 +48,9 @@ jobs:
 
       - name: Compiling
         run: |
-          if [ "${DEVICE}" = "tissot" ]; then
-            wget https://raw.githubusercontent.com/sirnewbies/kernel_build_action/main/scripts/tissot_build_script.sh
+          if [ "${DEVICE}" = "blossom" ]; then
+            wget https://github.com/Dhamararf/kernel_build_action/blob/main/blossom_build_script.sh
             bash tissot_build_script.sh
-          elif [ "${DEVICE}" = "tissot-mainline" ]; then
-            wget https://raw.githubusercontent.com/sirnewbies/kernel_build_action/main/scripts/tissot-mainline_build_script.sh
-            bash tissot-mainline_build_script.sh
-          elif [ "${DEVICE}" = "topaz" ]; then 
-            wget https://raw.githubusercontent.com/sirnewbies/kernel_build_action/main/scripts/topaz_build_script.sh
-            bash topaz_build_script.sh
-          elif [ "${DEVICE}" = "sweet" ]; then
-            wget https://raw.githubusercontent.com/sirnewbies/kernel_build_action/main/scripts/sweet_build_script.sh
-            bash sweet_build_script.sh
           else
             echo "Device not supported yet"
           fi
